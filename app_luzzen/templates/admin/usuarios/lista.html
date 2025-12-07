@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestión de Usuarios - LuzZen{% endblock %}
+
+{% block content %}
+<section class="admin-crud">
+    <div class="contenedor">
+        <div class="admin-header">
+            <h1>Gestión de Usuarios</h1>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="stats-simple">
+            <div class="stat-simple">
+                <h3>Total Usuarios</h3>
+                <p>{{ total_usuarios }}</p>
+            </div>
+        </div>
+
+        <!-- Buscador simplificado -->
+        <div class="filtros-admin">
+            <input type="text" placeholder="Buscar por nombre o email..." class="buscar-input" id="buscar-usuario">
+        </div>
+
+        <!-- Lista de Usuarios -->
+        <div class="tabla-container">
+            <table class="tabla-admin">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>País</th>
+                        <th>Pedidos</th>
+                        <th>Favoritos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="usuarios-container">
+                    {% for usuario in usuarios %}
+                    <tr class="usuario-fila" 
+                        data-nombre="{{ usuario.nombre|lower }}" 
+                        data-email="{{ usuario.email|lower }}">
+                        <td>{{ usuario.id }}</td>
+                        <td>{{ usuario.nombre }}</td>
+                        <td>{{ usuario.email }}</td>
+                        <td>{{ usuario.pais }}</td>
+                        <td>{{ usuario.pedido_set.count }}</td>
+                        <td>{{ usuario.favorito_set.count }}</td>
+                        <td>
+                            <div class="acciones-tabla">
+                                <a href="{% url 'admin_usuarios_editar' usuario.id %}" class="btn-accion editar">Editar</a>
+                                {% if usuario.pedido_set.count == 0 %}
+                                <form method="POST" action="{% url 'admin_usuarios_eliminar' usuario.id %}" class="form-eliminar">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-accion eliminar" onclick="return confirm('¿Estás seguro de eliminar este usuario?')">Eliminar</button>
+                                </form>
+                                {% else %}
+                                <span class="btn-accion deshabilitado" title="No se puede eliminar usuarios con pedidos">Eliminar</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- Script simplificado para búsqueda en tiempo real -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filasUsuarios = Array.from(document.querySelectorAll('.usuario-fila'));
+    const inputBuscar = document.getElementById('buscar-usuario');
+
+    // Función para buscar en tiempo real
+    function buscarUsuarios() {
+        const textoBuscar = inputBuscar.value.toLowerCase().trim();
+        
+        filasUsuarios.forEach(fila => {
+            const nombre = fila.dataset.nombre;
+            const email = fila.dataset.email;
+            
+            // Mostrar si coincide con nombre o email
+            const coincide = textoBuscar === '' || 
+                            nombre.includes(textoBuscar) || 
+                            email.includes(textoBuscar);
+            
+            fila.style.display = coincide ? '' : 'none';
+        });
+    }
+
+    // Buscar en tiempo real
+    inputBuscar.addEventListener('input', buscarUsuarios);
+    
+    // Aplicar búsqueda automáticamente si hay parámetro en URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const buscarParam = urlParams.get('buscar');
+    if (buscarParam) {
+        inputBuscar.value = buscarParam;
+        buscarUsuarios();
+    }
+});
+</script>
+{% endblock %}

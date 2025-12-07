@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }} - LuzZen{% endblock %}
+
+{% block content %}
+<section class="admin-form">
+    <div class="contenedor">
+        <div class="admin-header">
+            <h1>{{ titulo }}</h1>
+            <a href="{% url 'admin_usuarios' %}" class="btn-secundario">← Volver a Usuarios</a>
+        </div>
+
+        <form method="POST" class="form-admin">
+            {% csrf_token %}
+            
+            <div class="form-grid">
+                <!-- Información Personal -->
+                <div class="form-grupo">
+                    <label for="nombre">Nombre Completo *</label>
+                    <input type="text" id="nombre" name="nombre" value="{{ usuario.nombre }}" required>
+                </div>
+
+                <div class="form-grupo">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" value="{{ usuario.email }}" required>
+                </div>
+
+                <div class="form-grupo">
+                    <label for="contraseña">Contraseña</label>
+                    <input type="password" id="contraseña" name="contraseña" placeholder="Dejar vacío para mantener la actual">
+                    <small>Si ingresas una nueva contraseña, se actualizará</small>
+                </div>
+
+                <div class="form-grupo">
+                    <label for="pais">País *</label>
+                    <select id="pais" name="pais" required>
+                        <option value="">Seleccionar país</option>
+                        <option value="Mexico" {% if usuario.pais == 'Mexico' %}selected{% endif %}>México</option>
+                        <option value="España" {% if usuario.pais == 'España' %}selected{% endif %}>España</option>
+                        <option value="Argentina" {% if usuario.pais == 'Argentina' %}selected{% endif %}>Argentina</option>
+                        <option value="Colombia" {% if usuario.pais == 'Colombia' %}selected{% endif %}>Colombia</option>
+                        <option value="Chile" {% if usuario.pais == 'Chile' %}selected{% endif %}>Chile</option>
+                        <option value="Peru" {% if usuario.pais == 'Peru' %}selected{% endif %}>Perú</option>
+                        <option value="Estados Unidos" {% if usuario.pais == 'Estados Unidos' %}selected{% endif %}>Estados Unidos</option>
+                    </select>
+                </div>
+
+                <!-- Dirección -->
+                <div class="form-grupo full">
+                    <label for="direccion">Dirección *</label>
+                    <textarea id="direccion" name="direccion" rows="3" required>{{ usuario.direccion }}</textarea>
+                </div>
+
+                <!-- Estadísticas (solo lectura) -->
+                <div class="form-grupo full">
+                    <h3>Estadísticas del Usuario</h3>
+                    <div class="stats-usuario">
+                        <div class="stat-item">
+                            <strong>Total Pedidos:</strong> {{ usuario.pedido_set.count }}
+                        </div>
+                        <div class="stat-item">
+                            <strong>Pedidos Completados:</strong> {{ pedidos_completados }}
+                        </div>
+                        <div class="stat-item">
+                            <strong>Pedidos Pendientes:</strong> {{ pedidos_pendientes }}
+                        </div>
+                        <div class="stat-item">
+                            <strong>Total Favoritos:</strong> {{ usuario.favorito_set.count }}
+                        </div>
+                        <div class="stat-item">
+                            <strong>Total Gastado:</strong> ${{ total_gastado }}
+                        </div>
+                        <div class="stat-item">
+                            <strong>Usuario desde:</strong> {{ fecha_registro }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-acciones">
+                <button type="submit" class="btn-principal">{{ accion }}</button>
+                <a href="{% url 'admin_usuarios' %}" class="btn-secundario">Cancelar</a>
+                
+                {% if usuario.pedido_set.count == 0 %}
+                <form method="POST" action="{% url 'admin_usuarios_eliminar' usuario.id %}" class="form-eliminar-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-accion eliminar" onclick="return confirm('¿Estás seguro de que quieres eliminar este usuario?')">Eliminar Usuario</button>
+                </form>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

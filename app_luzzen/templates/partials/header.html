@@ -1,0 +1,35 @@
+{% load static %}
+{% csrf_token %}
+<header class="header">
+    <div class="contenedor">
+        <div class="logo">
+            <a href="{% url 'index' %}"><img src="{% static 'img/logo.png' %}" alt="LuzZen Logo"> </a>
+            <a href="{% url 'index' %}"><span>LuzZen</span></a>
+        </div>
+        
+        <nav class="navegacion">
+            <ul>
+                <li><a href="{% url 'index' %}" class="{% if request.path == '/' %}activo{% endif %}">Inicio</a></li>
+                <li><a href="{% url 'catalogo' %}">Productos</a></li>
+            </ul>
+        </nav>
+        
+        <div class="acciones-usuario">
+            {% if request.session.usuario_id %}
+                <div class="menu-usuario">
+                    {% if not request.session.es_admin %}
+                        <a href="{% url 'carrito' %}" class="btn-carrito">Carrito</a>
+                        <a href="{% url 'favoritos' %}" class="btn-favoritos">Favoritos</a>
+                        <a href="{% url 'perfil' %}" class="btn-perfil">Mi Cuenta</a>
+                    {% endif %}
+                    {% if request.session.es_admin %}
+                        <a href="{% url 'admin_dashboard' %}" class="btn-admin">Admin</a>
+                    {% endif %}
+                    <a href="{% url 'logout' %}" class="btn-logout">Cerrar Sesión</a>
+                </div>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn-login">Iniciar Sesión</a>
+            {% endif %}
+        </div>
+    </div>
+</header>

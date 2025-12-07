@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pedido #{{ pedido.id }} - LuzZen{% endblock %}
+
+{% block content %}
+<section class="detalle-pedido">
+    <div class="contenedor">
+        <div class="pedido-header-detalle">
+            <h1>Pedido #{{ pedido.id }}</h1>
+            <div class="pedido-meta">
+                <p><strong>Fecha:</strong> {{ pedido.fecha_creacion|date:"d M Y H:i" }}</p>
+                <p><strong>Estado:</strong> <span class="estado {{ pedido.estado }}">{{ pedido.estado|title }}</span></p>
+                <p><strong>Total:</strong> ${{ pedido.total }}</p>
+            </div>
+        </div>
+        
+        <!-- Productos del Pedido -->
+        <div class="pedido-productos-detalle">
+            <h2>Productos</h2>
+            {% for item in pedido.items.all %}
+            <div class="producto-pedido">
+                <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombre }}">
+                <div class="producto-info-pedido">
+                    <h3>{{ item.producto.nombre }}</h3>
+                    <p>Cantidad: {{ item.cantidad }}</p>
+                    <p>Precio unitario: ${{ item.precio_unitario }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Resumen -->
+        <div class="pedido-resumen-detalle">
+            <h2>Resumen del Pedido</h2>
+            <div class="resumen-lineas">
+                <div class="resumen-linea total">
+                    <span>Total:</span>
+                    <span>${{ pedido.total }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Información de Envío -->
+        <div class="pedido-envio">
+            <h2>Información de Envío</h2>
+            <div class="info-envio">
+                <p><strong>Dirección:</strong> {{ pedido.cliente.direccion }}</p>
+                <p><strong>País:</strong> {{ pedido.cliente.pais }}</p>
+                <p><strong>Contacto:</strong> {{ pedido.cliente.email }}</p>
+            </div>
+        </div>
+        
+        <div class="pedido-acciones">
+            <a href="{% url 'historial_pedidos' %}" class="btn-secundario">Volver al Historial</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestión de Categorías - LuzZen{% endblock %}
+
+{% block content %}
+<section class="admin-categorias">
+    <div class="contenedor">
+        <div class="admin-header">
+            <h1>Gestión de Categorías</h1>
+            <a href="{% url 'admin_categorias_crear' %}" class="btn-principal">➕ Nueva Categoría</a>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="stats-simple">
+            <div class="stat-simple">
+                <h3>Total Categorías</h3>
+                <p>{{ total_categorias }}</p>
+            </div>
+        </div>
+
+        <!-- Lista de Categorías -->
+        <div class="tabla-container">
+            <table class="tabla-admin">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Productos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for categoria in categorias %}
+                    <tr>
+                        <td>{{ categoria.id }}</td>
+                        <td>{{ categoria.nombre }}</td>
+                        <td>{{ categoria.descripcion|truncatewords:10 }}</td>
+                        <td>{{ categoria.producto_set.count }}</td>
+                        <td>
+                            <div class="acciones-tabla">
+                                <a href="{% url 'admin_categorias_editar' categoria.id %}" class="btn-accion editar">Editar</a>
+                                {% if categoria.producto_set.count == 0 %}
+                                <form method="POST" action="{% url 'admin_categorias_eliminar' categoria.id %}" class="form-eliminar">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-accion eliminar">Eliminar</button>
+                                </form>
+                                {% else %}
+                                <span class="btn-accion deshabilitado">Eliminar</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

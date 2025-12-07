@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestión de Productos - LuzZen{% endblock %}
+
+{% block content %}
+<section class="admin-productos">
+    <div class="contenedor">
+        <div class="admin-header">
+            <h1>Gestión de Productos</h1>
+            <a href="{% url 'admin_productos_crear' %}" class="btn-principal">➕ Nuevo Producto</a>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filtros-admin">
+            <input type="text" placeholder="Buscar producto..." class="buscar-input" id="buscar-producto">
+        </div>
+
+        <!-- Tabla de Productos -->
+        <div class="tabla-container">
+            <table class="tabla-admin">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Imagen</th>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Categoría</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="productos-container">
+                    {% for producto in productos %}
+                    <tr class="producto-fila" 
+                        data-nombre="{{ producto.nombre|lower }}" 
+                        data-categoria="{{ producto.categoria.id }}" 
+                        data-marca="{{ producto.marca.id }}"
+                        data-estado="{% if producto.activo %}activo{% else %}inactivo{% endif %}"
+                        data-precio="{{ producto.precio }}"
+                        data-stock="{{ producto.stock }}">
+                        <td>{{ producto.id }}</td>
+                        <td>
+                            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="img-tabla">
+                        </td>
+                        <td>{{ producto.nombre }}</td>
+                        <td>${{ producto.precio }}</td>
+                        <td>{{ producto.stock }}</td>
+                        <td>{{ producto.categoria.nombre }}</td>
+                        <td>
+                            {% if producto.activo %}
+                            <span class="estado activo">Activo</span>
+                            {% else %}
+                            <span class="estado inactivo">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="acciones-tabla">
+                                <a href="{% url 'admin_productos_editar' producto.id %}" class="btn-accion editar">Editar</a>
+                                <form method="POST" action="{% url 'admin_productos_eliminar' producto.id %}" class="form-eliminar">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-accion eliminar" onclick="return confirm('¿Estás seguro de eliminar este producto?')">Eliminar</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Contador -->
+        <div class="contador-resultados">
+            <p id="contador-productos">{{ productos|length }} productos encontrados</p>
+        </div>
+    </div>
+</section>
+
+<!-- Script para filtros de productos -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filasProductos = Array.from(document.querySelectorAll('.producto-fila'));
+    const inputBuscar = document.getElementById('buscar-producto');
+    const contador = document.getElementById('contador-productos');
+
+    // Función para aplicar filtros
+    function aplicarFiltros() {
+        const textoBuscar = inputBuscar.value.toLowerCase();
+
+        let productosVisibles = 0;
+
+        filasProductos.forEach(fila => {
+            const nombre = fila.dataset.nombre;
+
+            let coincide = true;
+
+            // Filtro por texto de búsqueda
+            if (textoBuscar && !nombre.includes(textoBuscar)) {
+                coincide = false;
+            }
+            
+            // Mostrar/ocultar fila
+            fila.style.display = coincide ? '' : 'none';
+            
+            if (coincide) {
+                productosVisibles++;
+            }
+        });
+
+        // Actualizar contador
+        contador.textContent = `${productosVisibles} productos encontrados`;
+    }
+
+    // Función para limpiar filtros
+    function limpiarFiltros() {
+        inputBuscar.value = '';
+        aplicarFiltros();
+    }
+
+    // Buscar en tiempo real
+    inputBuscar.addEventListener('input', aplicarFiltros);
+    
+});
+</script>
+{% endblock %}

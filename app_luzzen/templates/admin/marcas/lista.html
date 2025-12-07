@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestión de Marcas - LuzZen{% endblock %}
+
+{% block content %}
+<section class="admin-crud">
+    <div class="contenedor">
+        <div class="admin-header">
+            <h1>Gestión de Marcas</h1>
+            <a href="{% url 'admin_marcas_crear' %}" class="btn-principal">➕ Nueva Marca</a>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="stats-simple">
+            <div class="stat-simple">
+                <h3>Total Marcas</h3>
+                <p>{{ total_marcas }}</p>
+            </div>
+        </div>
+
+        <!-- Lista de Marcas -->
+        <div class="tabla-container">
+            <table class="tabla-admin">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Fecha Creación</th>
+                        <th>Productos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for marca in marcas %}
+                    <tr>
+                        <td>{{ marca.id }}</td>
+                        <td>{{ marca.nombre }}</td>
+                        <td>{{ marca.descripcion|truncatewords:10|default:"-" }}</td>
+                        <td>{{ marca.fecha_creacion|date:"d/m/Y" }}</td>
+                        <td>{{ marca.producto_set.count }}</td>
+                        <td>
+                            <div class="acciones-tabla">
+                                <a href="{% url 'admin_marcas_editar' marca.id %}" class="btn-accion editar">Editar</a>
+                                {% if marca.producto_set.count == 0 %}
+                                <form method="POST" action="{% url 'admin_marcas_eliminar' marca.id %}" class="form-eliminar">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-accion eliminar">Eliminar</button>
+                                </form>
+                                {% else %}
+                                <span class="btn-accion deshabilitado">Eliminar</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

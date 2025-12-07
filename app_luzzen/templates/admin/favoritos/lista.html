@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestión de Favoritos - LuzZen{% endblock %}
+
+{% block content %}
+<section class="admin-crud">
+    <div class="contenedor">
+        <div class="admin-header">
+            <h1>Gestión de Favoritos</h1>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="stats-simple">
+            <div class="stat-simple">
+                <h3>Total Favoritos</h3>
+                <p>{{ total_favoritos }}</p>
+            </div>
+            <div class="stat-simple">
+                <h3>Usuarios Activos</h3>
+                <p>{{ usuarios_activos }}</p>
+            </div>
+            <div class="stat-simple">
+                <h3>Productos Populares</h3>
+                <p>{{ productos_populares }}</p>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filtros-admin">
+            <input type="text" placeholder="Buscar usuario..." class="buscar-input">
+            <select class="filtro-select">
+                <option value="">Todos los productos</option>
+                {% for producto in productos %}
+                <option value="{{ producto.id }}">{{ producto.nombre }}</option>
+                {% endfor %}
+            </select>
+            <button class="btn-filtrar">Filtrar</button>
+        </div>
+
+        <!-- Lista de Favoritos -->
+        <div class="tabla-container">
+            <table class="tabla-admin">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th>Categoría</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for favorito in favoritos %}
+                    <tr>
+                        <td>{{ favorito.id }}</td>
+                        <td>{{ favorito.cliente.nombre }}</td>
+                        <td>{{ favorito.producto.nombre }}</td>
+                        <td>${{ favorito.producto.precio }}</td>
+                        <td>{{ favorito.producto.categoria.nombre }}</td>
+                        <td>{{ favorito.fecha_agregado|date:"d/m/Y" }}</td>
+                        <td>
+                            <div class="acciones-tabla">
+                                <a href="{% url 'detalle_producto' favorito.producto.id %}" class="btn-accion ver">Ver Producto</a>
+                                <form method="POST" action="#" class="form-eliminar">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-accion eliminar">Eliminar</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

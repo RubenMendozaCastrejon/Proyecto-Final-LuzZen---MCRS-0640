@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }} - LuzZen{% endblock %}
+
+{% block content %}
+<section class="admin-form">
+    <div class="contenedor">
+        <div class="admin-header">
+            <h1>{{ titulo }}</h1>
+            <a href="{% url 'admin_marcas' %}" class="btn-secundario">← Volver</a>
+        </div>
+
+        <form method="POST" class="form-admin simple">
+            {% csrf_token %}
+            
+            <div class="form-grupo">
+                <label for="nombre">Nombre de la Marca *</label>
+                <input type="text" id="nombre" name="nombre" value="{{ marca.nombre|default:'' }}" required>
+            </div>
+
+            <div class="form-grupo">
+                <label for="descripcion">Descripción</label>
+                <textarea id="descripcion" name="descripcion" rows="4" placeholder="Breve descripción de la marca...">{{ marca.descripcion|default:'' }}</textarea>
+            </div>
+
+            <div class="form-acciones">
+                <button type="submit" class="btn-principal">{{ accion }}</button>
+                <a href="{% url 'admin_marcas' %}" class="btn-secundario">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

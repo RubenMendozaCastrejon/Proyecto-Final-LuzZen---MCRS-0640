@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mi Perfil - LuzZen{% endblock %}
+
+{% block content %}
+<section class="perfil">
+    <div class="contenedor">
+        <h1>Mi Perfil</h1>
+        
+        <div class="perfil-layout">
+            <!-- Información Personal -->
+            <div class="perfil-seccion">
+                <h2>Información Personal</h2>
+                <div class="perfil-info">
+                    <div class="info-grupo">
+                        <label>Nombre:</label>
+                        <p>{{ usuario.nombre }}</p>
+                    </div>
+                    <div class="info-grupo">
+                        <label>Email:</label>
+                        <p>{{ usuario.email }}</p>
+                    </div>
+                    <div class="info-grupo">
+                        <label>País:</label>
+                        <p>{{ usuario.pais }}</p>
+                    </div>
+                    <div class="info-grupo">
+                        <label>Dirección:</label>
+                        <p>{{ usuario.direccion }}</p>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Acciones Rápidas -->
+        <div class="acciones-rapidas">
+            <h2>Acciones Rápidas</h2>
+            <div class="grid-acciones">
+                <a href="{% url 'carrito' %}" class="accion-card">
+                    <h3>Carrito</h3>
+                    <p>Ver y gestionar tu carrito</p>
+                </a>
+                <a href="{% url 'favoritos' %}" class="accion-card">
+                    <h3>Favoritos</h3>
+                    <p>Tus productos guardados</p>
+                </a>
+                <a href="{% url 'historial_pedidos' %}" class="accion-card">
+                    <h3>Pedidos</h3>
+                    <p>Historial de compras</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% if messages %}
+<div class="mensajes-container">
+    {% for message in messages %}
+    <div class="mensaje mensaje-{{ message.tags }}">
+        {{ message }}
+        <button class="cerrar-mensaje">&times;</button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}

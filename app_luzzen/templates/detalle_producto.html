@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ producto.nombre }} - LuzZen{% endblock %}
+
+{% block content %}
+<section class="detalle-producto">
+    <div class="contenedor">
+        <div class="producto-detalle">
+            <!-- Imágenes -->
+            <div class="producto-galeria">
+                <div class="imagen-principal">
+                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+                </div>
+            </div>
+            
+            <!-- Información -->
+            <div class="producto-info-detalle">
+                <h1>{{ producto.nombre }}</h1>
+                <p class="producto-precio">${{ producto.precio }}</p>
+                <p class="producto-stock">Stock: {{ producto.stock }} unidades</p>
+                
+                <div class="producto-meta">
+                    <p><strong>Categoría:</strong> {{ producto.categoria.nombre }}</p>
+                    <p><strong>Marca:</strong> {{ producto.marca.nombre }}</p>
+                    <p><strong>Material:</strong> {{ producto.material.nombre }}</p>
+                </div>
+                
+                <p class="producto-descripcion">{{ producto.descripcion }}</p>
+                
+                <div class="producto-acciones-detalle">
+                    <div class="acciones">
+                        {% if not request.session.es_admin %}
+                        <button class="btn-carrito btn-full" data-producto="{{ producto.id }}">Agregar al Carrito</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Botón agregar al carrito en detalle producto
+    const btnCarrito = document.querySelector('.btn-carrito');
+    if (btnCarrito) {
+        btnCarrito.addEventListener('click', function() {
+            const productoId = this.dataset.producto;
+            const cantidad = document.getElementById('cantidad-producto').value;
+            
+            if (productoId && productoId !== 'undefined') {
+                // Llamar múltiples veces para agregar la cantidad especificada
+                for (let i = 0; i < cantidad; i++) {
+                    setTimeout(() => {
+                        agregarAlCarrito(productoId);
+                    }, i * 100); // Pequeño delay entre llamadas
+                }
+            } else {
+                console.error('Product ID is undefined');
+                mostrarMensaje('Error: ID de producto no válido', 'error');
+            }
+        });
+    }
+    
+    // Botón favorito en detalle producto
+    const btnFavorito = document.querySelector('.btn-favorito');
+    if (btnFavorito) {
+        btnFavorito.addEventListener('click', function() {
+            const productoId = this.dataset.producto;
+            if (productoId && productoId !== 'undefined') {
+                agregarFavorito(productoId, this);
+            } else {
+                mostrarMensaje('Error: ID de producto no válido', 'error');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

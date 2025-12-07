@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }} - LuzZen{% endblock %}
+
+{% block content %}
+<section class="admin-form">
+    <div class="contenedor">
+        <div class="admin-header">
+            <h1>{{ titulo }}</h1>
+            <a href="{% url 'admin_productos' %}" class="btn-secundario">← Volver</a>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="form-admin">
+            {% csrf_token %}
+            
+            <div class="form-grid">
+                <!-- Información Básica -->
+                <div class="form-grupo">
+                    <label for="nombre">Nombre del Producto *</label>
+                    <input type="text" id="nombre" name="nombre" value="{{ producto.nombre|default:'' }}" required>
+                </div>
+
+                <div class="form-grupo">
+                    <label for="precio">Precio *</label>
+                    <input type="number" id="precio" name="precio" step="0.01" value="{{ producto.precio|default:'' }}" required>
+                </div>
+
+                <div class="form-grupo">
+                    <label for="stock">Stock *</label>
+                    <input type="number" id="stock" name="stock" value="{{ producto.stock|default:'0' }}" required>
+                </div>
+
+                <div class="form-grupo">
+                    <label for="categoria">Categoría *</label>
+                    <select id="categoria" name="categoria" required>
+                        <option value="">Seleccionar categoría</option>
+                        {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}" {% if producto.categoria.id == categoria.id %}selected{% endif %}>
+                            {{ categoria.nombre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-grupo">
+                    <label for="marca">Marca *</label>
+                    <select id="marca" name="marca" required>
+                        <option value="">Seleccionar marca</option>
+                        {% for marca in marcas %}
+                        <option value="{{ marca.id }}" {% if producto.marca.id == marca.id %}selected{% endif %}>
+                            {{ marca.nombre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-grupo">
+                    <label for="material">Material *</label>
+                    <select id="material" name="material" required>
+                        <option value="">Seleccionar material</option>
+                        {% for material in materiales %}
+                        <option value="{{ material.id }}" {% if producto.material.id == material.id %}selected{% endif %}>
+                            {{ material.nombre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Imagen -->
+                <div class="form-grupo full">
+                    <label for="imagen">Imagen del Producto</label>
+                    {% if producto.imagen %}
+                    <div class="imagen-actual">
+                        <img src="{{ producto.imagen.url }}" alt="Imagen actual">
+                        <p>Imagen actual</p>
+                    </div>
+                    {% endif %}
+                    <input type="file" id="imagen" name="imagen" accept="image/*">
+                </div>
+
+                <!-- Descripción -->
+                <div class="form-grupo full">
+                    <label for="descripcion">Descripción *</label>
+                    <textarea id="descripcion" name="descripcion" rows="5" required>{{ producto.descripcion|default:'' }}</textarea>
+                </div>
+
+                <!-- Estado -->
+                <div class="form-grupo">
+                    <label class="checkbox-container">
+                        <input type="checkbox" name="activo" {% if producto.activo or not producto %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        Producto activo
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-acciones">
+                <button type="submit" class="btn-principal">{{ accion }}</button>
+                <a href="{% url 'admin_productos' %}" class="btn-secundario">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

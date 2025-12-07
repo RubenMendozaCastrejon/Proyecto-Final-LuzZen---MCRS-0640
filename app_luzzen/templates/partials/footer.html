@@ -1,0 +1,36 @@
+{% load static %}
+<footer class="footer">
+    <div class="contenedor">
+        <div class="contenido-footer">
+            <div class="seccion-footer">
+                <div class="logo">
+                    <img src="{% static 'img/logo.png' %}" alt="LuzZen Logo">
+                    <span>LuzZen</span>
+                </div>
+                <p>Líder en soluciones de iluminación innovadoras</p>
+            </div>
+            
+            <div class="seccion-footer">
+                <h3>Enlaces rápidos</h3>
+                <ul>
+                    <li><a href="{% url 'index' %}">Inicio</a></li>
+                    <li><a href="{% url 'catalogo' %}">Productos</a></li>
+                    <li><a href="{% url 'login' %}">Iniciar Sesion</a></li>
+                </ul>
+            </div>
+            
+            <div class="seccion-footer">
+                <h3>Contacto</h3>
+                <ul>
+                    <li>info@luzzen.com</li>
+                    <li>+34 912 345 678</li>
+                    <li>Chihuahua, Mexico</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-inferior">
+            <p>Ruben Mendoza Castrejon - 5I</p>
+        </div>
+    </div>
+</footer>

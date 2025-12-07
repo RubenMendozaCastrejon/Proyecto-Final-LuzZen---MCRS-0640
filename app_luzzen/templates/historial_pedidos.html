@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Historial de Pedidos - LuzZen{% endblock %}
+
+{% block content %}
+<section class="historial-pedidos">
+    <div class="contenedor">
+        <h1>Historial de Pedidos</h1>
+        
+        {% if pedidos %}
+        <div class="pedidos-lista">
+            {% for pedido in pedidos %}
+            <div class="pedido-card">
+                <div class="pedido-header">
+                    <div class="pedido-info">
+                        <h3>Pedido #{{ pedido.id }}</h3>
+                        <p class="pedido-fecha">{{ pedido.fecha_creacion|date:"d M Y" }}</p>
+                    </div>
+                    <div class="pedido-estado {{ pedido.estado }}">
+                        {{ pedido.estado|title }}
+                    </div>
+                </div>
+                
+                <div class="pedido-detalles">
+                    <div class="pedido-productos">
+                        {% for item in pedido.items.all|slice:":3" %}
+                        <div class="producto-mini">
+                            <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombre }}">
+                            <span>{{ item.producto.nombre }} (x{{ item.cantidad }})</span>
+                        </div>
+                        {% endfor %}
+                        {% if pedido.items.all|length > 3 %}
+                        <p class="mas-productos">+{{ pedido.items.all|length|add:"-3" }} más productos</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="pedido-acciones">
+                        <p class="pedido-total">Total: ${{ pedido.total }}</p>
+                        <a href="{% url 'detalle_pedido' pedido.id %}" class="btn-ver">Ver Detalles</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="pedidos-vacio">
+            <h2>No tienes pedidos aún</h2>
+            <p>Realiza tu primera compra y aparecerá aquí</p>
+            <br>
+            <a href="{% url 'catalogo' %}" class="btn-principal">Explorar Productos</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

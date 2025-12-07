@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Cerrar Sesión - LuzZen{% endblock %}
+
+{% block content %}
+<section class="logout-section">
+    <div class="contenedor">
+        <div class="logout-container">
+            <div class="logout-content">
+                <div class="logout-icon">
+                    <i>👋</i>
+                </div>
+                <h2>¿Estás seguro de que quieres cerrar sesión?</h2>
+                <p>Serás redirigido a la página de inicio y deberás iniciar sesión nuevamente para acceder a tu cuenta.</p>
+                
+                <div class="logout-actions">
+                    <form method="POST" action="{% url 'logout' %}" class="logout-form">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-principal btn-logout-confirm">Sí, cerrar sesión</button>
+                    </form>
+                    <a href="{% url 'index' %}" class="btn-secundario">Cancelar</a>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

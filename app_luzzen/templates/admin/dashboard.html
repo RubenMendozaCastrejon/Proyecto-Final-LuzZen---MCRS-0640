@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Panel de Administración - LuzZen{% endblock %}
+
+{% block content %}
+<section class="admin-dashboard">
+    <div class="contenedor">
+        <div class="admin-header">
+            <h1>Panel de Administración</h1>
+            <p>Bienvenido al centro de control de LuzZen</p>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="admin-stats">
+            <div class="stat-card admin">
+                <h3>Total Productos</h3>
+                <p class="stat-numero">{{ total_productos }}</p>
+            </div>
+            <div class="stat-card admin">
+                <h3>Pedidos Activos</h3>
+                <p class="stat-numero">{{ pedidos_pendientes }}</p>
+            </div>
+            <div class="stat-card admin">
+                <h3>Usuarios Registrados</h3>
+                <p class="stat-numero">{{ total_usuarios }}</p>
+            </div>
+        </div>
+
+        <!-- Acciones Rápidas -->
+        <div class="admin-acciones">
+            <h2>Gestión Rápida</h2>
+            <div class="grid-acciones admin">
+                <a href="{% url 'admin_productos' %}" class="accion-card admin">
+                    <h3>📦 Productos</h3>
+                    <p>Gestionar catálogo de productos</p>
+                </a>
+                <a href="{% url 'admin_categorias' %}" class="accion-card admin">
+                    <h3>📁 Categorías</h3>
+                    <p>Administrar categorías</p>
+                </a>
+                <a href="{% url 'admin_marcas' %}" class="accion-card admin">
+                    <h3>🏷️ Marcas</h3>
+                    <p>Gestionar marcas</p>
+                </a>
+                <a href="{% url 'admin_materiales' %}" class="accion-card admin">
+                    <h3>⚙️ Materiales</h3>
+                    <p>Administrar materiales</p>
+                </a>
+                <a href="{% url 'admin_usuarios' %}" class="accion-card admin">
+                    <h3>👥 Usuarios</h3>
+                    <p>Gestionar usuarios</p>
+                </a>
+                <a href="{% url 'admin_pedidos' %}" class="accion-card admin">
+                    <h3>📋 Pedidos</h3>
+                    <p>Ver todos los pedidos</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- Pedidos Recientes -->
+        <div class="pedidos-recientes">
+            <h2>Pedidos Recientes</h2>
+            <div class="tabla-container">
+                <table class="tabla-admin">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Fecha</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pedido in pedidos_recientes %}
+                        <tr>
+                            <td>#{{ pedido.id }}</td>
+                            <td>{{ pedido.cliente.nombre }}</td>
+                            <td>{{ pedido.fecha_creacion|date:"d/m/Y" }}</td>
+                            <td>${{ pedido.total}}</td>
+                            <td><span class="estado {{ pedido.estado }}">{{ pedido.estado }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

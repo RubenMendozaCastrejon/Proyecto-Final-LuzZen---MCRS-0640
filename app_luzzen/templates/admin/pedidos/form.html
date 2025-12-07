@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }} - LuzZen{% endblock %}
+
+{% block content %}
+<section class="admin-form">
+    <div class="contenedor">
+        <div class="admin-header">
+            <h1>{{ titulo }}</h1>
+            <a href="{% url 'admin_pedidos' %}" class="btn-secundario">← Volver a Pedidos</a>
+        </div>
+
+        <form method="POST" class="form-admin">
+            {% csrf_token %}
+            
+            <div class="form-grid">
+                <!-- Información del Pedido -->
+                <div class="form-grupo">
+                    <label for="cliente">Cliente</label>
+                    <input type="text" id="cliente" value="{{ pedido.cliente.nombre }}" readonly>
+                    <small>ID: {{ pedido.cliente.id }} - Email: {{ pedido.cliente.email }}</small>
+                </div>
+
+                <div class="form-grupo">
+                    <label for="fecha_creacion">Fecha de Creación</label>
+                    <input type="text" id="fecha_creacion" value="{{ pedido.fecha_creacion|date:'d/m/Y H:i' }}" readonly>
+                </div>
+
+                <div class="form-grupo">
+                    <label for="estado">Estado del Pedido *</label>
+                    <select id="estado" name="estado" required>
+                        <option value="pendiente" {% if pedido.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                        <option value="completado" {% if pedido.estado == 'completado' %}selected{% endif %}>Completado</option>
+                        <option value="cancelado" {% if pedido.estado == 'cancelado' %}selected{% endif %}>Cancelado</option>
+                    </select>
+                </div>
+
+                <div class="form-grupo">
+                    <label for="total">Total</label>
+                    <input type="text" id="total" value="${{ pedido.total }}" readonly>
+                </div>
+
+                <!-- Items del Pedido -->
+                <div class="form-grupo full">
+                    <h3>Productos del Pedido</h3>
+                    <div class="tabla-items">
+                        <table class="tabla-admin">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Unitario</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in pedido.items.all %}
+                                <tr>
+                                    <td>
+                                        <div class="producto-info">
+                                            {% if item.producto.imagen %}
+                                            <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombre }}" class="img-tabla">
+                                            {% endif %}
+                                            <span>{{ item.producto.nombre }}</span>
+                                        </div>
+                                    </td>
+                                    <td>{{ item.cantidad }}</td>
+                                    <td>${{ item.precio_unitario }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Información del Cliente -->
+                <div class="form-grupo full">
+                    <h3>Información del Cliente</h3>
+                    <div class="info-cliente">
+                        <div class="info-linea">
+                            <strong>Nombre:</strong> {{ pedido.cliente.nombre }}
+                        </div>
+                        <div class="info-linea">
+                            <strong>Email:</strong> {{ pedido.cliente.email }}
+                        </div>
+                        <div class="info-linea">
+                            <strong>País:</strong> {{ pedido.cliente.pais }}
+                        </div>
+                        <div class="info-linea">
+                            <strong>Dirección:</strong> {{ pedido.cliente.direccion }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-acciones">
+                <button type="submit" class="btn-principal">{{ accion }}</button>
+                <a href="{% url 'admin_pedidos' %}" class="btn-secundario">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

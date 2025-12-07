@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestión de Pedidos - LuzZen{% endblock %}
+
+{% block content %}
+<section class="admin-crud">
+    <div class="contenedor">
+        <div class="admin-header">
+            <h1>Gestión de Pedidos</h1>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="stats-simple">
+            <div class="stat-simple">
+                <h3>Total Pedidos</h3>
+                <p>{{ total_pedidos }}</p>
+            </div>
+            <div class="stat-simple">
+                <h3>Pendientes</h3>
+                <p>{{ pedidos_pendientes }}</p>
+            </div>
+        </div>
+
+        <!-- Lista de Pedidos -->
+        <div class="tabla-container">
+            <table class="tabla-admin">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Productos</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pedido in pedidos %}
+                    <tr>
+                        <td>#{{ pedido.id }}</td>
+                        <td>{{ pedido.cliente.nombre }}</td>
+                        <td>{{ pedido.fecha_creacion|date:"d/m/Y" }}</td>
+                        <td>{{ pedido.items.count }} productos</td>
+                        <td>${{ pedido.total }}</td>
+                        <td>
+                            <select class="estado-select" data-pedido="{{ pedido.id }}">
+                                <option value="pendiente" {% if pedido.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                                <option value="completado" {% if pedido.estado == 'completado' %}selected{% endif %}>Completado</option>
+                                <option value="cancelado" {% if pedido.estado == 'cancelado' %}selected{% endif %}>Cancelado</option>
+                            </select>
+                        </td>
+                        <td>
+                            <div class="acciones-tabla">
+                                <a href="{% url 'admin_pedidos_editar' pedido.id %}" class="btn-accion editar">Editar</a>
+                                <form method="POST" action="{% url 'admin_pedidos_eliminar' pedido.id %}" class="form-eliminar">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-accion eliminar" onclick="return confirm('¿Estás seguro de eliminar este pedido?')">Eliminar</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

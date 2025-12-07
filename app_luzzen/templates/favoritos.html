@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mis Favoritos - LuzZen{% endblock %}
+
+{% block content %}
+<section class="favoritos">
+    <div class="contenedor">
+        <h1>Mis Favoritos</h1>
+        
+        {% if favoritos %}
+        <div class="favoritos-grid">
+            {% for favorito in favoritos %}
+            <div class="favorito-card" data-favorito="{{ favorito.id }}">
+                <div class="favorito-imagen">
+                    <img src="{{ favorito.producto.imagen.url }}" alt="{{ favorito.producto.nombre }}">
+                    <button class="btn-eliminar-favorito" data-favorito="{{ favorito.id }}">×</button>
+                </div>
+                <div class="favorito-info">
+                    <h3>{{ favorito.producto.nombre }}</h3>
+                    <p class="favorito-precio">${{ favorito.producto.precio }}</p>
+                    <p class="favorito-desc">{{ favorito.producto.descripcion|truncatewords:15 }}</p>
+                    <div class="favorito-acciones">
+                        <a href="{% url 'detalle_producto' favorito.producto.id %}" class="btn-ver">Ver Detalles</a>
+                        <button class="btn-carrito" data-producto="{{ favorito.producto.id }}">Agregar al Carrito</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="favoritos-vacio">
+            <h2>No tienes productos favoritos</h2>
+            <p>Guarda tus productos favoritos para encontrarlos fácilmente después</p>
+            <br>
+            <a href="{% url 'catalogo' %}" class="btn-principal">Explorar Productos</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Script específico para favoritos -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Botones de eliminar favorito
+    document.querySelectorAll('.btn-eliminar-favorito').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const favoritoId = this.dataset.favorito;
+            if (favoritoId && favoritoId !== 'undefined') {
+                eliminarFavorito(favoritoId, this.closest('.favorito-card'));
+            } else {
+                mostrarMensaje('Error: ID de favorito no válido', 'error');
+            }
+        });
+    });
+    
+    // Botones de agregar al carrito en favoritos
+    document.querySelectorAll('.favorito-card .btn-carrito').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productoId = this.dataset.producto;
+            if (productoId && productoId !== 'undefined') {
+                agregarAlCarrito(productoId);
+            } else {
+                mostrarMensaje('Error: ID de producto no válido', 'error');
+            }
+        });
+    });
+});
+
+// Función para eliminar favorito
+function eliminarFavorito(favoritoId, elemento) {
+    if (!confirm('¿Estás seguro de que quieres eliminar este producto de favoritos?')) {
+        return;
+    }
+    
+    fetch(`/favoritos/eliminar/${favoritoId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCSRFToken(),
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            mostrarMensaje(data.message);
+            // Eliminar el elemento de la interfaz
+            if (elemento) {
+                elemento.remove();
+            }
+            // Si no quedan favoritos, recargar la página
+            if (document.querySelectorAll('.favorito-card').length === 0) {
+                setTimeout(() => location.reload(), 1000);
+            }
+        } else {
+            mostrarMensaje(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarMensaje('Error al eliminar de favoritos', 'error');
+    });
+}
+</script>
+{% endblock %}

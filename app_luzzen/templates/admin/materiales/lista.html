@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestión de Materiales - LuzZen{% endblock %}
+
+{% block content %}
+<section class="admin-crud">
+    <div class="contenedor">
+        <div class="admin-header">
+            <h1>Gestión de Materiales</h1>
+            <a href="{% url 'admin_materiales_crear' %}" class="btn-principal">➕ Nuevo Material</a>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="stats-simple">
+            <div class="stat-simple">
+                <h3>Total Materiales</h3>
+                <p>{{ total_materiales }}</p>
+            </div>
+        </div>
+
+        <!-- Lista de Materiales -->
+        <div class="tabla-container">
+            <table class="tabla-admin">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Precio Base</th>
+                        <th>Productos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for material in materiales %}
+                    <tr>
+                        <td>{{ material.id }}</td>
+                        <td>{{ material.nombre }}</td>
+                        <td>{{ material.descripcion|truncatewords:10|default:"-" }}</td>
+                        <td>${{ material.precio }}</td>
+                        <td>{{ material.producto_set.count }}</td>
+                        <td>
+                            <div class="acciones-tabla">
+                                <a href="{% url 'admin_materiales_editar' material.id %}" class="btn-accion editar">Editar</a>
+                                {% if material.producto_set.count == 0 %}
+                                <form method="POST" action="{% url 'admin_materiales_eliminar' material.id %}" class="form-eliminar">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-accion eliminar">Eliminar</button>
+                                </form>
+                                {% else %}
+                                <span class="btn-accion deshabilitado">Eliminar</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pasarela de Pago - LuzZen{% endblock %}
+
+{% block content %}
+<section class="pago">
+    <div class="contenedor">
+        <div class="pago-header">
+            <h1>Pasarela de Pago</h1>
+            <p>Complete los datos para finalizar su compra</p>
+        </div>
+
+        <div class="pago-layout">
+            <!-- Resumen del Pedido -->
+            <div class="pago-resumen">
+                <h2>Resumen de tu Pedido</h2>
+                <div class="resumen-productos">
+                    {% for item in items %}
+                    <div class="producto-resumen">
+                        <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombre }}">
+                        <div class="producto-info">
+                            <h4>{{ item.producto.nombre }}</h4>
+                            <p>Cantidad: {{ item.cantidad }}</p>
+                            <p class="precio">${{ item.precio_unitario }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="resumen-totales">
+                    <div class="total-linea">
+                        <span>Subtotal:</span>
+                        <span>${{ subtotal }}</span>
+                    </div>
+                    <div class="total-linea total-final">
+                        <span>Total a pagar:</span>
+                        <span>${{ total }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario de Pago -->
+            <div class="pago-formulario">
+                <h2>Método de Pago</h2>
+                
+                <form id="formulario-pago" method="POST" action="{% url 'procesar_pago' %}">
+                    {% csrf_token %}
+                    
+                    <!-- Selección de Tipo de Tarjeta -->
+                    <div class="form-grupo">
+                        <label>Tipo de Tarjeta</label>
+                        <div class="tipo-tarjeta-opciones">
+                            <label class="tipo-tarjeta">
+                                <input type="radio" name="tipo_tarjeta" value="credito" checked>
+                                <div class="tarjeta-icono">
+                                    💳
+                                </div>
+                                <span>Tarjeta de Crédito</span>
+                            </label>
+                            <label class="tipo-tarjeta">
+                                <input type="radio" name="tipo_tarjeta" value="debito">
+                                <div class="tarjeta-icono">
+                                    🏦
+                                </div>
+                                <span>Tarjeta de Débito</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Datos de la Tarjeta -->
+                    <div class="form-grupo">
+                        <label for="numero_tarjeta">Número de Tarjeta *</label>
+                        <input type="text" id="numero_tarjeta" name="numero_tarjeta" maxlength="19" 
+                               placeholder="1234 5678 9012 3456" required>
+                    </div>
+                    <br>
+                    <div class="form-fila">
+                        <div class="form-grupo">
+                            <label for="fecha_vencimiento">Fecha de Vencimiento *</label>
+                            <input type="text" id="fecha_vencimiento" name="fecha_vencimiento" 
+                                   placeholder="MM/AA" maxlength="5" required>
+                        </div>
+                        
+                        <div class="form-grupo">
+                            <label for="cvv">CVV *</label>
+                            <input type="text" id="cvv" name="cvv" maxlength="3" 
+                                   placeholder="123" required>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="form-grupo">
+                        <label for="nombre_titular">Nombre del Titular *</label>
+                        <input type="text" id="nombre_titular" name="nombre_titular" 
+                               placeholder="Como aparece en la tarjeta" required>
+                    </div>
+                    <br>
+                    <!-- Botones -->
+                    <div class="pago-acciones">
+                        <button type="submit" class="btn-principal btn-pagar" id="btn-pagar">
+                            Pagar ${{ total }}
+                        </button>
+                        <a href="{% url 'carrito' %}" class="btn-secundario">← Volver al Carrito</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal de Confirmación -->
+<div id="modal-confirmacion" class="modal">
+    <div class="modal-contenido">
+        <div class="modal-header">
+            <h3>Confirmar Pago</h3>
+            <button class="cerrar-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>¿Estás seguro de que quieres proceder con el pago de <strong>${{ total }}</strong>?</p>
+            <p class="confirmacion-datos">Se procesará el pago con los datos ingresados.</p>
+        </div>
+        <div class="modal-acciones">
+            <button type="button" class="btn-secundario" id="btn-cancelar-pago">Cancelar</button>
+            <button type="button" class="btn-principal" id="btn-confirmar-pago">Confirmar Pago</button>
+        </div>
+    </div>
+</div>
+
+<!-- Script para la pasarela de pago -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const formulario = document.getElementById('formulario-pago');
+    const btnPagar = document.getElementById('btn-pagar');
+    const modal = document.getElementById('modal-confirmacion');
+    const btnConfirmar = document.getElementById('btn-confirmar-pago');
+    const btnCancelar = document.getElementById('btn-cancelar-pago');
+    const cerrarModal = document.querySelector('.cerrar-modal');
+
+    // Formatear número de tarjeta
+    const numeroTarjeta = document.getElementById('numero_tarjeta');
+    numeroTarjeta.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+        let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+        e.target.value = formattedValue;
+    });
+
+    // Formatear fecha de vencimiento
+    const fechaVencimiento = document.getElementById('fecha_vencimiento');
+    fechaVencimiento.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\//g, '').replace(/[^0-9]/gi, '');
+        if (value.length >= 2) {
+            value = value.substring(0, 2) + '/' + value.substring(2, 4);
+        }
+        e.target.value = value;
+    });
+
+    // Validar CVV (solo números)
+    const cvv = document.getElementById('cvv');
+    cvv.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/[^0-9]/gi, '');
+    });
+
+    // Validar formulario antes de mostrar modal
+    formulario.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (validarFormulario()) {
+            modal.style.display = 'flex';
+        }
+    });
+
+    // Confirmar pago
+    btnConfirmar.addEventListener('click', function() {
+        // Mostrar loading
+        btnPagar.innerHTML = '🔄 Procesando pago...';
+        btnPagar.disabled = true;
+        
+        // Cerrar modal
+        modal.style.display = 'none';
+        
+        // Enviar formulario después de breve delay para simular procesamiento
+        setTimeout(() => {
+            formulario.submit();
+        }, 2000);
+    });
+
+    // Cancelar pago
+    btnCancelar.addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+
+    // Cerrar modal
+    cerrarModal.addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+
+    // Cerrar modal al hacer clic fuera
+    window.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    // Función de validación
+    function validarFormulario() {
+        const numeroTarjetaVal = numeroTarjeta.value.replace(/\s/g, '');
+        const fechaVencimientoVal = document.getElementById('fecha_vencimiento').value;
+        const cvvVal = cvv.value;
+        const nombreTitularVal = document.getElementById('nombre_titular').value;
+
+        // Validaciones básicas
+        if (numeroTarjetaVal.length !== 16) {
+            alert('El número de tarjeta debe tener 16 dígitos');
+            return false;
+        }
+
+        // Validar formato MM/AA
+        if (!fechaVencimientoVal.match(/^\d{2}\/\d{2}$/)) {
+            alert('Formato de fecha inválido. Use MM/AA');
+            return false;
+        }
+        
+        // Validar que sea posterior a 2025
+        const partes = fechaVencimientoVal.split('/');
+        const ano = parseInt(partes[1]); // AA
+        
+        if (ano <= 25) {
+            alert('La tarjeta debe tener fecha de vencimiento posterior al año 2025 (mayor a 25)');
+            return false;
+        }
+
+        if (cvvVal.length !== 3) {
+            alert('El CVV debe tener 3 dígitos');
+            return false;
+        }
+
+        if (!nombreTitularVal.trim()) {
+            alert('Ingrese el nombre del titular');
+            return false;
+        }
+
+        return true;
+    }
+
+    // Efectos visuales para los tipos de tarjeta
+    document.querySelectorAll('.tipo-tarjeta').forEach(tarjeta => {
+        tarjeta.addEventListener('click', function() {
+            document.querySelectorAll('.tipo-tarjeta').forEach(t => {
+                t.classList.remove('seleccionada');
+            });
+            this.classList.add('seleccionada');
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Carrito de Compras - LuzZen{% endblock %}
+
+{% block content %}
+<section class="carrito">
+    <div class="contenedor">
+        <h1>Carrito de Compras</h1>
+        
+        {% if items %}
+        <div class="carrito-layout">
+            <!-- Items del Carrito -->
+            <div class="carrito-items">
+                {% for item in items %}
+                <div class="carrito-item" data-item="{{ item.id }}">
+                    <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombre }}">
+                    <div class="item-info">
+                        <h3>{{ item.producto.nombre }}</h3>
+                        <p class="item-precio">${{ item.precio_unitario }}</p>
+                        <p class="item-stock">Stock disponible: {{ item.producto.stock }}</p>
+                    </div>
+                    <div class="item-cantidad">
+                        <button class="btn-cantidad" data-accion="decrementar">-</button>
+                        <span class="cantidad-actual">{{ item.cantidad }}</span>
+                        <button class="btn-cantidad" data-accion="incrementar">+</button>
+                    </div>
+                    <button class="btn-eliminar" data-item="{{ item.id }}">×</button>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Resumen -->
+            <div class="carrito-resumen">
+                <h2>Resumen del Pedido</h2>
+                <div class="resumen-linea">
+                    <span>Subtotal:</span>
+                    <span>${{ subtotal }}</span>
+                </div>
+                <div class="resumen-linea total">
+                    <span>Total:</span>
+                    <span>${{ total }}</span>
+                </div>
+                
+                <!-- Botón para proceder al pago -->
+                <form method="POST" action="{% url 'pago' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-principal btn-comprar">Proceder al Pago</button>
+                </form>
+                
+                <a href="{% url 'catalogo' %}" class="btn-secundario">Seguir Comprando</a>
+            </div>
+        </div>
+        {% else %}
+        <div class="carrito-vacio">
+            <h2>Tu carrito está vacío</h2>
+            <p>Descubre nuestros productos y añade algunos a tu carrito</p>
+            <br>
+            <a href="{% url 'catalogo' %}" class="btn-principal">Explorar Productos</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

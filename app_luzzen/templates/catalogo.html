@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Catálogo de Productos - LuzZen{% endblock %}
+
+{% block content %}
+<section class="catalogo">
+    <div class="contenedor">
+        <h1>Catálogo de Productos</h1>
+        
+        <div class="catalogo-layout">
+            <!-- Filtros -->
+            <aside class="filtros">
+                <h3>Filtros</h3>
+                
+                <div class="filtro-grupo">
+                    <h4>Categorías</h4>
+                    {% for categoria in categorias %}
+                    <label class="filtro-opcion">
+                        <input type="checkbox" name="categoria" value="{{ categoria.id }}">
+                        {{ categoria.nombre }}
+                    </label>
+                    {% endfor %}
+                </div>
+                
+                <div class="filtro-grupo">
+                    <h4>Marcas</h4>
+                    {% for marca in marcas %}
+                    <label class="filtro-opcion">
+                        <input type="checkbox" name="marca" value="{{ marca.id }}">
+                        {{ marca.nombre }}
+                    </label>
+                    {% endfor %}
+                </div>
+                
+                <div class="filtro-grupo">
+                    <h4>Materiales</h4>
+                    {% for material in materiales %}
+                    <label class="filtro-opcion">
+                        <input type="checkbox" name="material" value="{{ material.id }}">
+                        {{ material.nombre }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </aside>
+            
+            <!-- Productos -->
+            <div class="productos-grid">
+                <div class="productos-header">
+                </div>
+                
+                <div class="grid-productos" id="productos-container">
+                    {% for producto in productos %}
+                    <div class="producto-card {% if producto.stock == 0 %}producto-sin-stock{% endif %}" 
+                         data-categoria="{{ producto.categoria.id }}" 
+                         data-marca="{{ producto.marca.id }}" 
+                         data-material="{{ producto.material.id }}" 
+                         data-nombre="{{ producto.nombre|lower }}">
+                         <div class="producto-imagen">
+                            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+                            <!-- Solo mostrar botón de favoritos si NO es admin -->
+                            {% if not request.session.es_admin %}
+                            <button class="btn-favorito" data-producto="{{ producto.id }}">♥</button>
+                            {% endif %}
+                        </div>
+                        <div class="producto-info">
+                            <h3>{{ producto.nombre }}</h3>
+                            <p class="producto-precio">${{ producto.precio }}</p>
+                            <p class="producto-desc">{{ producto.descripcion|truncatewords:10 }}</p>
+                            <div class="producto-acciones">
+                                <a href="{% url 'detalle_producto' producto.id %}" class="btn-ver">Ver detalles</a>
+                                <!-- Solo mostrar botón de carrito si NO es admin -->
+                                {% if not request.session.es_admin %}
+                                <button class="btn-carrito" data-producto="{{ producto.id }}">Agregar</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Script para filtros -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const productosContainer = document.getElementById('productos-container');
+    const btnAplicarFiltros = document.getElementById('btn-aplicar-filtros');
+    const btnLimpiarFiltros = document.getElementById('btn-limpiar-filtros');
+    const productos = Array.from(document.querySelectorAll('.producto-card'));
+    
+    // Función para aplicar filtros
+    function aplicarFiltros() {
+        // Obtener categorías seleccionadas
+        const categoriasSeleccionadas = Array.from(document.querySelectorAll('input[name="categoria"]:checked'))
+            .map(input => input.value);
+        
+        // Obtener marcas seleccionadas
+        const marcasSeleccionadas = Array.from(document.querySelectorAll('input[name="marca"]:checked'))
+            .map(input => input.value);
+        
+        // Obtener materiales seleccionados
+        const materialesSeleccionados = Array.from(document.querySelectorAll('input[name="material"]:checked'))
+            .map(input => input.value);
+        
+        
+        let productosVisibles = 0;
+
+        // Filtrar productos
+        productos.forEach(producto => {
+            const categoria = producto.dataset.categoria;
+            const marca = producto.dataset.marca;
+            const material = producto.dataset.material;
+            
+            let coincide = true;
+
+            // Verificar categoría
+            if (categoriasSeleccionadas.length > 0 && !categoriasSeleccionadas.includes(categoria)) {
+                coincide = false;
+            }
+            
+            // Verificar marca
+            if (marcasSeleccionadas.length > 0 && !marcasSeleccionadas.includes(marca)) {
+                coincide = false;
+            }
+            
+            // Verificar material
+            if (materialesSeleccionados.length > 0 && !materialesSeleccionados.includes(material)) {
+                coincide = false;
+            }
+            
+            // Mostrar/ocultar producto
+            producto.style.display = coincide ? 'block' : 'none';
+            
+            if (coincide) {
+                productosVisibles++;
+            }
+        });
+        
+        // Actualizar contador
+        contadorProductos.textContent = `${productosVisibles} productos encontrados`;
+    }
+
+    
+    // También aplicar filtros cuando se cambien los checkboxes
+    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', aplicarFiltros);
+    });
+});
+</script>
+{% endblock %}

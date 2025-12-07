@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="contenedor-hero">
+        <div class="contenido-hero">
+            <h1>Iluminación que transforma espacios</h1>
+        <p>Soluciones innovadoras para hogares, empresas y proyectos profesionales</p>
+        <a href="{% url 'catalogo' %}" class="btn-principal">Explorar productos</a>
+        </div>
+    </div>
+</section>
+
+<!-- Sobre Nosotros -->
+<section class="sobre-nosotros">
+    <div class="contenedor">
+        <div class="contenido-sobre">
+            <h2>Nuestra Empresa</h2>
+            <p>LuzZen es líder en soluciones de iluminación con presencia internacional en más de 20 países. Combinamos diseño innovador, tecnología de vanguardia y sostenibilidad para crear espacios que inspiran.</p>
+            <a href="{% url 'catalogo' %}" class="btn-secundario">Conoce más</a>
+        </div>
+    </div>
+</section>
+
+<!-- Productos -->
+<section class="productos">
+    <div class="contenedor">
+        <h2>Nuestras Categorías</h2>
+        <div class="grid-productos">
+            <div class="categoria-producto">
+                <div class="imagen-producto">
+                    <img src="https://images.unsplash.com/photo-1507473885765-e6ed057f782c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Bombillas LED">
+                </div>
+                <h3>Bombillas</h3>
+                <p>Tecnología LED de alta eficiencia y larga duración</p>
+                <a href="{% url 'catalogo' %}">Ver productos</a>
+            </div>
+            
+            <div class="categoria-producto">
+                <div class="imagen-producto">
+                    <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Iluminarias">
+                </div>
+                <h3>Iluminarias</h3>
+                <p>Sistemas completos para interior y exterior</p>
+                <a href="{% url 'catalogo' %}">Ver productos</a>
+            </div>
+            
+            <div class="categoria-producto">
+                <div class="imagen-producto">
+                    <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Iluminación decorativa">
+                </div>
+                <h3>Decorativa</h3>
+                <p>Diseños únicos que transforman ambientes</p>
+                <a href="{% url 'catalogo' %}">Ver productos</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
